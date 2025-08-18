@@ -1,0 +1,206 @@
+# Issue template configuration
+# https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository
+
+# Template chooser settings
+template_chooser:
+  # Show template chooser when creating new issues
+  types:
+    - name: "🐛 Bug Report"
+      description: "Laporkan bug untuk membantu kami memperbaiki"
+      template: "bug_report.md"
+      labels: ["bug", "triage"]
+      assignees: ["yourusername"]
+      
+    - name: "💡 Feature Request"
+      description: "Sarankan ide untuk proyek ini"
+      template: "feature_request.md"
+      labels: ["enhancement", "discussion"]
+      assignees: ["yourusername"]
+      
+    - name: "📚 Documentation"
+      description: "Perbaikan atau peningkatan dokumentasi"
+      template: "documentation.md"
+      labels: ["documentation", "good first issue"]
+      assignees: ["yourusername"]
+      
+    - name: "🔒 Security Issue"
+      description: "Laporkan vulnerability keamanan"
+      template: "security.md"
+      labels: ["security", "high-priority"]
+      assignees: ["yourusername"]
+      
+    - name: "🧪 Testing"
+      description: "Perbaikan atau peningkatan testing"
+      template: "testing.md"
+      labels: ["testing", "good first issue"]
+      assignees: ["yourusername"]
+      
+    - name: "🚀 Performance"
+      description: "Peningkatan performa aplikasi"
+      template: "performance.md"
+      labels: ["performance", "enhancement"]
+      assignees: ["yourusername"]
+      
+    - name: "🎨 UI/UX"
+      description: "Perbaikan interface dan user experience"
+      template: "ui-ux.md"
+      labels: ["ui-ux", "enhancement"]
+      assignees: ["yourusername"]
+      
+    - name: "🗄️ Database"
+      description: "Perbaikan atau peningkatan database"
+      template: "database.md"
+      labels: ["database", "enhancement"]
+      assignees: ["yourusername"]
+      
+    - name: "🤖 AI/ML"
+      description: "Perbaikan atau peningkatan AI services"
+      template: "ai-ml.md"
+      labels: ["ai-ml", "enhancement"]
+      assignees: ["yourusername"]
+      
+    - name: "🌐 Deployment"
+      description: "Perbaikan atau peningkatan deployment"
+      template: "deployment.md"
+      labels: ["deployment", "infrastructure"]
+      assignees: ["yourusername"]
+      
+    - name: "❓ Question"
+      description: "Pertanyaan tentang proyek atau fitur"
+      template: "question.md"
+      labels: ["question", "help wanted"]
+      assignees: ["yourusername"]
+      
+    - name: "💬 Discussion"
+      description: "Diskusi umum tentang proyek"
+      template: "discussion.md"
+      labels: ["discussion", "community"]
+      assignees: ["yourusername"]
+
+# Default settings for all issues
+defaults:
+  labels: ["triage"]
+  assignees: ["yourusername"]
+  title: "[ISSUE] "
+  body: |
+    ## 📝 Description
+    <!-- Jelaskan masalah atau pertanyaan Anda secara singkat dan jelas -->
+    
+    ## 🔍 Additional Context
+    <!-- Informasi tambahan yang relevan -->
+    
+    ## 📋 Checklist
+    - [ ] Saya telah membaca [Contributing Guidelines](CONTRIBUTING.md)
+    - [ ] Saya telah memeriksa documentation terbaru
+    - [ ] Saya telah mencari issue yang sama di repository ini
+
+# Issue form configuration
+contact_links:
+  - name: "📧 Email Support"
+    url: "mailto:support@assistenwira.com"
+    about: "Kirim email langsung ke tim support kami"
+    
+  - name: "💬 Community Chat"
+    url: "https://discord.gg/assistenwira"
+    about: "Bergabung dengan komunitas Discord kami"
+    
+  - name: "📖 Documentation"
+    url: "https://docs.assistenwira.com"
+    about: "Baca dokumentasi lengkap proyek"
+    
+  - name: "🐛 Known Issues"
+    url: "https://github.com/yourusername/asisten-wira/issues?q=is%3Aissue+is%3Aopen+label%3Abug"
+    about: "Lihat daftar bug yang sudah diketahui"
+    
+  - name: "🚀 Feature Roadmap"
+    url: "https://github.com/yourusername/asisten-wira/projects/1"
+    about: "Lihat roadmap fitur yang akan datang"
+
+# Issue template settings
+settings:
+  # Enable issue forms
+  issue_forms: true
+  
+  # Enable issue templates
+  issue_templates: true
+  
+  # Enable pull request templates
+  pull_request_templates: true
+  
+  # Enable security policy
+  security_policy: true
+  
+  # Enable contributing guidelines
+  contributing: true
+  
+  # Enable code of conduct
+  code_of_conduct: true
+  
+  # Enable license
+  license: true
+  
+  # Enable funding
+  funding: true
+
+# Repository information
+repository:
+  name: "Asisten Wira"
+  description: "AI Chatbot Builder untuk UMKM Indonesia"
+  topics: ["ai", "chatbot", "umkm", "indonesia", "nextjs", "fastapi", "supabase"]
+  homepage: "https://assistenwira.com"
+  language: "TypeScript"
+  
+# Community health files
+community_health:
+  - "CODE_OF_CONDUCT.md"
+  - "CONTRIBUTING.md"
+  - "SECURITY.md"
+  - "CHANGELOG.md"
+  - "README.md"
+  - "LICENSE"
+  - "FUNDING.yml"
+
+# Issue automation
+automation:
+  # Auto-label issues based on content
+  auto_label:
+    - "bug": ["error", "crash", "broken", "not working"]
+    - "enhancement": ["feature", "improvement", "better", "enhance"]
+    - "documentation": ["docs", "readme", "guide", "tutorial"]
+    - "good first issue": ["beginner", "easy", "simple", "first time"]
+    - "help wanted": ["help", "support", "assistance", "guidance"]
+    
+  # Auto-assign issues based on labels
+  auto_assign:
+    - "frontend": ["frontend-maintainer"]
+    - "backend": ["backend-maintainer"]
+    - "ai-ml": ["ai-maintainer"]
+    - "database": ["database-maintainer"]
+    - "security": ["security-maintainer"]
+    
+  # Auto-close stale issues
+  stale:
+    days: 30
+    message: |
+      Issue ini telah tidak aktif selama 30 hari. 
+      Jika masih relevan, silakan beri komentar untuk membuka kembali.
+    labels: ["stale"]
+    exempt_labels: ["pinned", "security", "high-priority"]
+    
+  # Auto-close duplicate issues
+  duplicate:
+    message: |
+      Issue ini tampaknya duplikat dari issue lain. 
+      Silakan cek issue yang sudah ada sebelum membuat yang baru.
+    labels: ["duplicate"]
+
+# Issue templates metadata
+metadata:
+  version: "1.0.0"
+  last_updated: "2024-01-XX"
+  maintainer: "yourusername"
+  contact: "support@assistenwira.com"
+  repository: "https://github.com/yourusername/asisten-wira"
+  documentation: "https://docs.assistenwira.com"
+  community: "https://discord.gg/assistenwira"
+  website: "https://assistenwira.com"

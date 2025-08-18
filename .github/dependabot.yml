@@ -1,0 +1,298 @@
+# Dependabot configuration file
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # Frontend dependencies (npm)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Jakarta"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "yourusername"
+    assignees:
+      - "yourusername"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "npm"
+    ignore:
+      # Ignore major version updates for critical packages
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+
+  # Backend dependencies (pip)
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Jakarta"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "yourusername"
+    assignees:
+      - "yourusername"
+    commit-message:
+      prefix: "pip"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "python"
+    ignore:
+      # Ignore major version updates for critical packages
+      - dependency-name: "fastapi"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pydantic"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "transformers"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Jakarta"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "yourusername"
+    assignees:
+      - "yourusername"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+
+  # Docker (if using containers)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Jakarta"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "yourusername"
+    assignees:
+      - "yourusername"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "container"
+
+  # Terraform (if using infrastructure as code)
+  - package-ecosystem: "terraform"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Jakarta"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "yourusername"
+    assignees:
+      - "yourusername"
+    commit-message:
+      prefix: "terraform"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "terraform"
+      - "infrastructure"
+
+# Global configuration
+registries:
+  # Custom registry configuration if needed
+  # custom-registry:
+  #   type: "npm-registry"
+  #   url: "https://npm.pkg.github.com"
+  #   token: "${{ secrets.CUSTOM_REGISTRY_TOKEN }}"
+
+# Group updates for related packages
+groups:
+  # Frontend framework updates
+  frontend-framework:
+    patterns:
+      - "next"
+      - "react"
+      - "react-dom"
+    update-types:
+      - "minor"
+      - "patch"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "framework"
+
+  # Backend framework updates
+  backend-framework:
+    patterns:
+      - "fastapi"
+      - "uvicorn"
+      - "pydantic"
+    update-types:
+      - "minor"
+      - "patch"
+    commit-message:
+      prefix: "pip"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "framework"
+
+  # AI/ML dependencies
+  ai-ml:
+    patterns:
+      - "transformers"
+      - "torch"
+      - "numpy"
+      - "scikit-learn"
+    update-types:
+      - "minor"
+      - "patch"
+    commit-message:
+      prefix: "pip"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ai-ml"
+      - "machine-learning"
+
+  # Development tools
+  dev-tools:
+    patterns:
+      - "pytest"
+      - "black"
+      - "flake8"
+      - "isort"
+    update-types:
+      - "minor"
+      - "patch"
+    commit-message:
+      prefix: "pip"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "dev-tools"
+      - "testing"
+
+# Security updates (always enabled)
+security-updates:
+  # Automatically create pull requests for security updates
+  auto-merge:
+    # Only auto-merge security updates for patch versions
+    update-types:
+      - "version-update:semver-patch"
+    # Require passing tests
+    required-status_checks:
+      - "ci/frontend"
+      - "ci/backend"
+      - "ci/security"
+    # Auto-merge after approval
+    required_approving_review_count: 1
+
+# Pull request configuration
+pull-request-branch-name:
+  separator: "-"
+
+# Commit message configuration
+commit-message:
+  prefix: "deps"
+  include: "scope"
+  prefix-development: "deps-dev"
+  include-development: "scope"
+
+# Version update strategy
+versioning-strategy: "auto"
+
+# Target branch for updates
+target-branch: "develop"
+
+# Rebase strategy
+rebase-strategy: "auto"
+
+# Allow updates for pre-release versions
+allow:
+  - dependency-type: "indirect"
+  - dependency-type: "direct"
+  - dependency-type: "production"
+  - dependency-type: "development"
+
+# Ignore specific dependencies
+ignore:
+  # Ignore packages that are known to cause issues
+  - dependency-name: "package-with-known-issues"
+    versions: ["1.0.0", "1.0.1"]
+  
+  # Ignore packages that require manual intervention
+  - dependency-name: "package-requiring-manual-setup"
+    update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+# Update schedule for different ecosystems
+schedules:
+  # Critical security updates (daily)
+  security:
+    interval: "daily"
+    time: "06:00"
+    timezone: "Asia/Jakarta"
+    ecosystems:
+      - "npm"
+      - "pip"
+      - "github-actions"
+    update-types:
+      - "security"
+      - "version-update:semver-patch"
+
+  # Regular updates (weekly)
+  regular:
+    interval: "weekly"
+    day: "monday"
+    time: "09:00"
+    timezone: "Asia/Jakarta"
+    ecosystems:
+      - "npm"
+      - "pip"
+      - "github-actions"
+    update-types:
+      - "version-update:semver-minor"
+      - "version-update:semver-patch"
+
+  # Major updates (monthly)
+  major:
+    interval: "monthly"
+    day: "monday"
+    time: "09:00"
+    timezone: "Asia/Jakarta"
+    ecosystems:
+      - "npm"
+      - "pip"
+    update-types:
+      - "version-update:semver-major"

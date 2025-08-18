@@ -1,0 +1,30 @@
+# Copy this to .env.local file in frontend directory
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://dkxiszylxbgtenfsmzdk.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRreGlzenlseGJndGVuZnNtemRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNjE4MjQsImV4cCI6MjA3MDkzNzgyNH0.40_PFjb_rIdEUbbJPKnG6OX3N3cm6k5UWEwSnkmQQbc
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRreGlzenlseGJndGVuZnNtemRrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTM2MTgyNCwiZXhwIjoyMDcwOTM3ODI0fQ.qwEKh3vtcoFKFRY3ujUyelugCVnEIKN9Z-cZvxYeq-o
+
+# AI Services Configuration
+HUGGINGFACE_API_TOKEN=your_huggingface_api_token_here
+REPLICATE_API_TOKEN=your_replicate_api_token_here
+
+# IBM Orchestrate Configuration (Premium Feature)
+IBM_ORCHESTRATE_API_KEY=your_ibm_orchestrate_api_key_here
+IBM_ORCHESTRATE_BASE_URL=https://api.dl.watson-orchestrate.ibm.com/instances/20250808-0409-3488-1071-285b5b026c17
+
+# Security Configuration
+JWT_SECRET_KEY=asisten-wira-super-secret-key-2025-change-this-in-production
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Application Settings
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://your-vercel-app.vercel.app
+
+# CORS Configuration
+NEXT_PUBLIC_CORS_ORIGINS=http://localhost:3000,https://your-vercel-app.vercel.app
+
+# File Upload Settings
+MAX_UPLOAD_SIZE=10485760
+ALLOWED_FILE_TYPES=pdf,txt,csv,docx

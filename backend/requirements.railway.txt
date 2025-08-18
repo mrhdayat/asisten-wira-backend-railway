@@ -1,0 +1,29 @@
+# Lightweight requirements for Railway deployment
+# Removes heavy packages: torch, transformers to stay under 4GB limit
+
+# Core FastAPI dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database & Authentication
+supabase==2.0.2
+python-dotenv==1.0.0
+PyJWT==2.8.0
+
+# HTTP & API clients
+requests==2.31.0
+httpx==0.25.2
+
+# Configuration & Validation
+pydantic-settings==2.0.3
+pydantic==2.5.0
+
+# Lightweight ML alternatives
+numpy==1.24.3
+
+# Additional dependencies for Railway
+gunicorn==21.2.0
+
+# Note: Heavy ML packages will be loaded via API calls to external services
+# instead of running locally to keep image size under 4GB

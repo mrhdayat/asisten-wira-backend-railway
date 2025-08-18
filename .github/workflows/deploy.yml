@@ -1,0 +1,265 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+jobs:
+  # Deploy Frontend to Vercel
+  deploy-frontend:
+    name: 🎨 Deploy Frontend (Vercel)
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: 📁 Change to frontend directory
+      working-directory: ./frontend
+      
+    - name: 📥 Install dependencies
+      run: npm ci
+      
+    - name: 🔍 Run tests
+      run: npm test --if-present
+      
+    - name: 🏗️ Build application
+      run: npm run build
+      
+    - name: 🚀 Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./frontend
+        vercel-args: '--prod'
+
+  # Deploy Backend to Render
+  deploy-backend:
+    name: 🐍 Deploy Backend (Render)
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 📥 Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+        
+    - name: 🧪 Run tests
+      working-directory: ./backend
+      run: |
+        pytest --cov=. --cov-report=xml
+        
+    - name: 🔍 Security scan
+      working-directory: ./backend
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json
+        
+    - name: 💾 Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-test-results
+        path: |
+          backend/coverage.xml
+          backend/safety-report.json
+        retention-days: 30
+        
+    - name: 🚀 Deploy to Render
+      uses: johnbey/actions-render@v1.0.0
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+        wait-for-success: true
+
+  # Deploy to Fly.io (Alternative)
+  deploy-fly:
+    name: 🚁 Deploy Backend (Fly.io)
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    if: ${{ github.event.inputs.environment == 'production' }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Flyctl
+      uses: superfly/flyctl-actions/setup-flyctl@master
+      
+    - name: 🚀 Deploy to Fly.io
+      run: |
+        flyctl deploy --remote-only
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  # Database Migration
+  database-migration:
+    name: 🗄️ Database Migration
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 📥 Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: 🔄 Run database migrations
+      working-directory: ./backend
+      run: |
+        python scripts/migrate.py
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+  # Health Check
+  health-check:
+    name: 🏥 Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-frontend, deploy-backend]
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Check frontend health
+      run: |
+        # Wait for deployment to be ready
+        sleep 60
+        
+        # Check frontend
+        FRONTEND_URL="${{ secrets.FRONTEND_URL }}"
+        echo "Checking frontend health at: $FRONTEND_URL"
+        
+        response=$(curl -s -o /dev/null -w "%{http_code}" "$FRONTEND_URL")
+        if [ "$response" = "200" ]; then
+          echo "✅ Frontend is healthy"
+        else
+          echo "❌ Frontend health check failed: $response"
+          exit 1
+        fi
+        
+    - name: 🔍 Check backend health
+      run: |
+        # Check backend API
+        BACKEND_URL="${{ secrets.BACKEND_URL }}"
+        echo "Checking backend health at: $BACKEND_URL/health"
+        
+        response=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/health")
+        if [ "$response" = "200" ]; then
+          echo "✅ Backend is healthy"
+        else
+          echo "❌ Backend health check failed: $response"
+          exit 1
+        fi
+        
+    - name: 🔍 Check AI services
+      run: |
+        # Check AI service status
+        BACKEND_URL="${{ secrets.BACKEND_URL }}"
+        echo "Checking AI services at: $BACKEND_URL/ai/status"
+        
+        response=$(curl -s "$BACKEND_URL/ai/status")
+        echo "AI Services Status: $response"
+        
+        # Check if response contains expected data
+        if echo "$response" | grep -q "ibm_orchestrate"; then
+          echo "✅ AI services are responding"
+        else
+          echo "❌ AI services health check failed"
+          exit 1
+        fi
+
+  # Notification
+  notify:
+    name: 📢 Notify Team
+    runs-on: ubuntu-latest
+    needs: [health-check]
+    if: always()
+    
+    steps:
+    - name: 📧 Send email notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: ${{ secrets.SMTP_SERVER }}
+        server_port: ${{ secrets.SMTP_PORT }}
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: "🚀 Deployment ${{ job.status }} - Asisten Wira"
+        to: ${{ secrets.NOTIFICATION_EMAIL }}
+        from: "deploy@assistenwira.com"
+        body: |
+          Deployment Status: ${{ job.status }}
+          Environment: ${{ github.event.inputs.environment || 'production' }}
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref }}
+          Triggered by: ${{ github.actor }}
+          
+          View deployment: ${{ secrets.FRONTEND_URL }}
+          
+          GitHub Actions: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+    - name: 💬 Slack notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        text: |
+          🚀 Deployment ${{ job.status }} - Asisten Wira
+          Environment: ${{ github.event.inputs.environment || 'production' }}
+          Commit: ${{ github.sha }}
+          Triggered by: ${{ github.actor }}
+
+# Environment variables
+env:
+  NODE_ENV: production
+  PYTHONPATH: ./backend
+
+# Cache dependencies
+cache:
+  paths:
+    - '~/.npm'
+    - '~/.cache/pip'
+    - 'frontend/.next/cache'
+    - 'backend/__pycache__'

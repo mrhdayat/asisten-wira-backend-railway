@@ -1,0 +1,22 @@
+# Optimized requirements.txt for Vercel deployment
+# Lightweight version to prevent OOM during build
+
+# Core FastAPI dependencies (lightweight)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database & Authentication (essential only)
+supabase==2.0.2
+python-dotenv==1.0.0
+PyJWT==2.8.0
+
+# HTTP & API clients (minimal)
+requests==2.31.0
+
+# Configuration & Validation (core only)
+pydantic==2.5.0
+
+# Note: Removed heavy packages to prevent OOM
+# numpy, httpx, pydantic-settings, gunicorn removed
+# AI processing will be done via external APIs

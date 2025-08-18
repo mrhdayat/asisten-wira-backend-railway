@@ -1,0 +1,48 @@
+# Vercel ignore file - exclude unnecessary files from deployment
+
+# Documentation
+*.md
+docs/
+.github/
+
+# Development files
+.env*
+*.log
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Frontend (not needed for backend)
+frontend/
+node_modules/
+
+# Docker (not needed for Vercel)
+docker-compose*.yml
+Dockerfile*
+
+# Shell scripts (not needed for Vercel)
+*.sh
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
+
+# Cache and temporary files
+.cache/
+tmp/
+temp/

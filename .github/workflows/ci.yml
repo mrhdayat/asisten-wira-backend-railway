@@ -1,0 +1,236 @@
+name: 🚀 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Frontend Testing & Build
+  frontend:
+    name: 🎨 Frontend (Next.js)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: 📁 Change to frontend directory
+      working-directory: ./frontend
+      run: pwd && ls -la
+      
+    - name: 📥 Install dependencies
+      run: npm ci
+      
+    - name: 🔍 Lint check
+      run: npm run lint
+      
+    - name: 🧪 Run tests
+      run: npm test --if-present
+      
+    - name: 🏗️ Build application
+      run: npm run build
+      
+    - name: 📊 Build size check
+      run: npx @next/bundle-analyzer@latest build/static/*.js --json | tee bundle-analysis.json
+      
+    - name: 💾 Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: frontend/.next
+        retention-days: 7
+
+  # Backend Testing & Linting
+  backend:
+    name: 🐍 Backend (Python/FastAPI)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 📥 Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov flake8 black isort
+        
+    - name: 🔍 Code formatting check
+      working-directory: ./backend
+      run: |
+        black --check --diff .
+        isort --check-only --diff .
+        
+    - name: 🔍 Lint check
+      working-directory: ./backend
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    - name: 🧪 Run tests
+      working-directory: ./backend
+      run: |
+        pytest --cov=. --cov-report=xml --cov-report=html
+        coverage report
+        
+    - name: 💾 Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: backend/htmlcov
+        retention-days: 7
+
+  # Security Scanning
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: 🔍 Run CodeQL analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript, python
+        
+    - name: 🔍 Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      
+    - name: 💾 Upload security results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-scan-results
+        path: trivy-results.sarif
+        retention-days: 30
+
+  # Database Schema Validation
+  database:
+    name: 🗄️ Database Schema
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup PostgreSQL
+      uses: Harmon758/postgresql-action@v1.0.0
+      with:
+        postgresql version: '15'
+        postgresql db: 'test_db'
+        postgresql user: 'test_user'
+        postgresql password: 'test_password'
+        
+    - name: 🔍 Validate schema
+      run: |
+        cd backend/database
+        psql -h localhost -U test_user -d test_db -f schema_clean.sql
+        
+    - name: 🧪 Run database tests
+      working-directory: ./backend
+      run: |
+        export DATABASE_URL="postgresql://test_user:test_password@localhost:5432/test_db"
+        python -m pytest tests/test_database.py -v
+
+  # Documentation Check
+  docs:
+    name: 📚 Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Check markdown links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-verbose-mode: 'yes'
+        use-quiet-mode: 'yes'
+        
+    - name: 🔍 Check documentation structure
+      run: |
+        # Check if all required docs exist
+        required_docs=("README.md" "CONTRIBUTING.md" "CODE_OF_CONDUCT.md" "CHANGELOG.md" "SECURITY.md")
+        for doc in "${required_docs[@]}"; do
+          if [ ! -f "$doc" ]; then
+            echo "❌ Missing required documentation: $doc"
+            exit 1
+          else
+            echo "✅ Found: $doc"
+          fi
+        done
+        
+        # Check if README has navigation to other docs
+        if ! grep -q "Dokumentasi Lengkap" README.md; then
+          echo "❌ README.md missing documentation navigation section"
+          exit 1
+        fi
+        
+        echo "✅ Documentation structure check passed"
+
+  # Performance Testing
+  performance:
+    name: ⚡ Performance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: 📥 Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: 🏗️ Build for production
+      working-directory: ./frontend
+      run: npm run build
+      
+    - name: 📊 Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          http://localhost:3000
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        configPath: './frontend/.lighthouserc.js'
+
+# Cache dependencies
+cache:
+  paths:
+    - '~/.npm'
+    - '~/.cache/pip'
+    - 'frontend/.next/cache'
+    - 'backend/__pycache__'
+
+# Environment variables
+env:
+  NODE_ENV: test
+  PYTHONPATH: ./backend
