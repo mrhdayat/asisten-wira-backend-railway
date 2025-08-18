@@ -199,9 +199,6 @@ Kami menyambut kontribusi! Lihat [CONTRIBUTING.md](CONTRIBUTING.md) untuk pandua
 4. Push ke branch (`git push origin feature/AmazingFeature`)
 5. Buat Pull Request
 
-## 📄 License
-
-Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## 🙏 Acknowledgments
 
